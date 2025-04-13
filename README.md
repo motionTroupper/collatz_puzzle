@@ -5,6 +5,7 @@ A visual and interactive exploration of the Collatz conjecture through bitwise p
 
 ## Overview
 
+![Pieces](collatz_puzzle.png)
 This project delves into the Collatz conjecture by analyzing binary representations and their transformations. It offers a unique perspective by visualizing how numbers evolve under the Collatz process, emphasizing the role of bit patterns in determining the sequence's behavior.
 
 ## Features
