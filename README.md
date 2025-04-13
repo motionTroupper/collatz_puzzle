@@ -6,7 +6,6 @@ Visual demonstration of the Collatz transformation using a finite set of seven p
 ![Puzzle Pieces](https://github.com/motionTroupper/collatz_puzzle/blob/master/puzzle_pieces.png)
 
 ---
-=======
 This project delves into the Collatz conjecture by analyzing binary representations and their transformations. It offers a unique perspective by visualizing how numbers evolve under the Collatz process, emphasizing the role of bit patterns in determining the sequence's behavior.
 
 ## 🧠 What is this?
