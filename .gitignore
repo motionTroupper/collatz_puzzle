@@ -1,7 +1,7 @@
-__pycache__/
-*.pyc
-.env
-.venv
-.idea/
-.vscode/
-OLD
+xx__pycache__/
+xx*.pyc
+xx.env
+xx.venv
+xx.idea/
+xx.vscode/
+xxOLD
