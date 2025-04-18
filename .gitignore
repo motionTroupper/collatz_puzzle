@@ -1,3 +1,8 @@
-__pycache__/\n*.pyc\n.env\n.venv\n.idea/\n.vscode/
+__pycache__/
+*.pyc
+.env
+.venv
+.idea/
+.vscode/
 OLD
 ~$*
