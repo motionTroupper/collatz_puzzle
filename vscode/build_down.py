@@ -10,8 +10,14 @@ if len(sys.argv) > 1:
 else:
     number = 0
 
-initial = logic.setNumber(number)
-print (colors.color_print(logic.spaced_pieces(initial)).replace('E', '·'))
-initial,zeros = logic.bottomNumbers(initial)
-print (colors.color_print(logic.spaced_pieces(initial)).replace('E', '·'))
+initial = logic.set_number(number)
+offset = initial['offset']
 
+rows = [initial]
+initial = logic.bottom_numbers(initial)
+offset = max(offset, initial['offset'])
+rows.append(initial)
+
+for row in rows:
+    print(colors.color_print(logic.spaced_pieces(row, spacer = '')).replace('E', '·'))
+    print(colors.color_print(logic.spaced_binary(row, spacer = '')).replace('E', '·'))

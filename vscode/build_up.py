@@ -10,15 +10,13 @@ if len(sys.argv) > 1:
 else:
     number = 0
 
-initial = logic.setNumber(number)
+initial = logic.set_number(number)
 rows = [initial]
-zeros = 0
 
-while zeros != 1:
-    initial, zeros = logic.upperNumber(initial)
+while not initial['is_power_of_two']:
+    initial = logic.upper_number(initial)
     rows.insert(0, initial)
-    if zeros == 1:
-        break
 
 for row in rows:
     print(colors.color_print(logic.spaced_pieces(row)).replace('E', '·'))
+    print(colors.color_print(logic.spaced_binary(row)).replace('E', '·'))
