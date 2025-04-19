@@ -60,15 +60,14 @@ def upper_number(source_row):
         'is_power_of_two': is_power_of_two(row_pieces)
     }
 
-def bottom_numbers(source_row, extended_positions):
+def bottom_numbers(source_row, number_of_rows=1):
     upper_row = source_row['pieces'][:]
     upper_size = len(upper_row)
 
-    in_progress_rows = [ [] ]
+    current_rows = [ [] ]
     completed_rows = []
 
-    while in_progress_rows:
-
+    while current_rows and len(completed_rows) < number_of_rows:
         if upper_row:
             upper_piece = upper_row.pop(0)
         else:
@@ -76,13 +75,13 @@ def bottom_numbers(source_row, extended_positions):
 
         upper_is = all_pieces[upper_piece]['current']
 
-        new_rows = []
-        for row in in_progress_rows:
+        next_rows = []
+        for processed_row in current_rows:
 
-            if len(row) == 0:
+            if len(processed_row) == 0:
                 right_carry = 0
             else:
-                right_carry = all_pieces[row[-1]]['right']
+                right_carry = all_pieces[processed_row[-1]]['right']
 
             fitting_pieces = lookup_piece(
                 {
@@ -91,46 +90,25 @@ def bottom_numbers(source_row, extended_positions):
                 }
             )
 
-            new_combo = False
             for piece in fitting_pieces:
-                if new_combo:
-                    current_row = row[:-1]
-                    new_rows.append(current_row)
-                else:
-                    new_combo = True
-                    current_row = row
+                if piece=='s' and upper_row:
+                    piece = None
+                elif piece == 'e' and not upper_row:
+                    piece = None
 
-                if piece=='s':
-                    if upper_row:
-                        current_row.append('x')
-                    else:
-                        current_row.append('s')
-                elif piece == 'e':
-                    if upper_row:
-                        current_row.append('e')
-                    else:
-                        current_row.append('x')
-                else:
-                    current_row.append(piece)
+                if piece:
+                    next_rows.append(processed_row[:] + [piece])
 
-        if new_rows: 
-            in_progress_rows += new_rows
-
-        next_rows=[]
-        for row in in_progress_rows:
-            if len(row)- upper_size > extended_positions:
-                continue
-            elif row[-1] == 'x':
-                continue
-            elif row[-1] == 's':
+        current_rows = []
+        for row in next_rows:
+            if row[-1] == 's':
                 completed_rows.append(row)
             else:
-                next_rows.append(row)
-
-        in_progress_rows = next_rows
+                current_rows.append(row)
 
     return [
         {
+            'number': binary_number(row).lstrip('0'),
             'pieces': row,
             'is_power_of_two': is_power_of_two(row)
         } for row in completed_rows
@@ -162,8 +140,9 @@ def set_number(number):
         row_pieces.insert(0, piece)
 
     return {
+        'number': binary_number(row_pieces).lstrip('0'),
         'pieces':row_pieces,
-        'is_power_of_two': is_power_of_two(row_pieces)
+        'is_power_of_two': is_power_of_two(row_pieces),
     }
 
 def is_power_of_two(pieces):
