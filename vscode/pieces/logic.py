@@ -21,7 +21,6 @@ def lookup_piece(filter):
 
 def upper_number(source_row):
     bottom_row = source_row['pieces'][:]
-    offset = source_row['offset']
 
     left_carry = None
     started = False
@@ -41,13 +40,13 @@ def upper_number(source_row):
             piece = "s"
             started = True
         else:
-            cell_pieces = lookup_piece({
+            fitting_pieces = lookup_piece({
                 "right": left_carry,
                 "current": bottom_will_be
             })
-            if 's' in cell_pieces:
-                cell_pieces.remove('s')
-            piece = cell_pieces[0]
+            if 's' in fitting_pieces:
+                fitting_pieces.remove('s')
+            piece = fitting_pieces[0]
 
         if piece is None:
             raise ValueError("No piece found for the given criteria.")
@@ -58,49 +57,84 @@ def upper_number(source_row):
 
     return {
         'pieces':row_pieces,
-        'offset':0,
         'is_power_of_two': is_power_of_two(row_pieces)
     }
 
-def bottom_numbers(source_row):
+def bottom_numbers(source_row, extended_positions):
     upper_row = source_row['pieces'][:]
-    offset = source_row['offset']
+    upper_size = len(upper_row)
 
-    right_carry = 0
-    finished = False
-    row_pieces= []
+    in_progress_rows = [ [] ]
+    completed_rows = []
 
-    while upper_row or right_carry or not finished:
+    while in_progress_rows:
+
         if upper_row:
             upper_piece = upper_row.pop(0)
         else:
             upper_piece = 'e'
-            offset += 1
-            finished = not right_carry
 
         upper_is = all_pieces[upper_piece]['current']
-        piece = None
 
-        cell_pieces = lookup_piece({
-            "left": right_carry,
-            "future": upper_is
-        })
+        new_rows = []
+        for row in in_progress_rows:
 
-        if 's' in cell_pieces and not upper_row:
-            piece = 's'
-            finished = True
-        else:
-            cell_pieces.remove('s') if 's' in cell_pieces else None
-            piece = cell_pieces[random.randint(0, len(cell_pieces) - 1)]
+            if len(row) == 0:
+                right_carry = 0
+            else:
+                right_carry = all_pieces[row[-1]]['right']
 
-        right_carry = all_pieces[piece]['right']
-        row_pieces.append(piece)
+            fitting_pieces = lookup_piece(
+                {
+                    "left": right_carry,
+                    "future": upper_is
+                }
+            )
 
-    return {
-        'pieces':row_pieces,
-        'offset':offset,
-        'is_power_of_two': is_power_of_two(row_pieces)
-    }
+            new_combo = False
+            for piece in fitting_pieces:
+                if new_combo:
+                    current_row = row[:-1]
+                    new_rows.append(current_row)
+                else:
+                    new_combo = True
+                    current_row = row
+
+                if piece=='s':
+                    if upper_row:
+                        current_row.append('x')
+                    else:
+                        current_row.append('s')
+                elif piece == 'e':
+                    if upper_row:
+                        current_row.append('e')
+                    else:
+                        current_row.append('x')
+                else:
+                    current_row.append(piece)
+
+        if new_rows: 
+            in_progress_rows += new_rows
+
+        next_rows=[]
+        for row in in_progress_rows:
+            if len(row)- upper_size > extended_positions:
+                continue
+            elif row[-1] == 'x':
+                continue
+            elif row[-1] == 's':
+                completed_rows.append(row)
+            else:
+                next_rows.append(row)
+
+        in_progress_rows = next_rows
+
+    return [
+        {
+            'pieces': row,
+            'is_power_of_two': is_power_of_two(row)
+        } for row in completed_rows
+    ]
 
 def set_number(number):
     bits = list(str(bin(number))[2:])
@@ -116,19 +150,18 @@ def set_number(number):
             piece = "s"
             started = True
         else:
-            cell_pieces = lookup_piece({
+            fitting_pieces = lookup_piece({
                 "right": left_carry,
                 "current": bit
             })
-            if 's' in cell_pieces:
-                cell_pieces.remove('s')
-            piece = cell_pieces[0]
+            if 's' in fitting_pieces:
+                fitting_pieces.remove('s')
+            piece = fitting_pieces[0]
 
         left_carry = all_pieces[piece]['left']
         row_pieces.insert(0, piece)
 
     return {
-        'offset':0,
         'pieces':row_pieces,
         'is_power_of_two': is_power_of_two(row_pieces)
     }
@@ -142,8 +175,8 @@ def binary_number(row):
 def decimal_number(row):
     return int(binary_number(row['pieces']), 2)
 
-def spaced_binary(row, spacer = ' ', spaces=screen_width):
-    return (spacer * (spaces - 2 * (len(row['pieces']) - row['offset']))) + ' '.join(binary_number(row['pieces']))
+def spaced_binary(row, spacer = ' ', spaces=screen_width, separator= ' '):
+    return (spacer * (spaces - 2 * len(row['pieces']) )) + separator.join(binary_number(row['pieces']))
 
-def spaced_pieces(row, spacer = ' ', spaces=screen_width):
-    return (spacer * (spaces - 2 * (len(row['pieces']) - row['offset']))) + ' '.join(row['pieces']).upper()
+def spaced_pieces(row, spacer = ' ', spaces=screen_width, separator=' '):
+    return (spacer * (spaces - 2 * len(row['pieces']) )) + separator.join(row['pieces']).upper()
